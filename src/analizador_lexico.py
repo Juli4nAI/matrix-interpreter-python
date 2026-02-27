@@ -1,17 +1,30 @@
+"""Analizador Léxico para el lenguaje de programación simple."""
+
 import re    #Libreria de Expresiones Regulares para reducir los while y simplificar codigo
 from typing import NamedTuple
 
-# Definicion de la clase Token para representar los tokens generados por el analizador léxico. 
-# Cada token tiene un tipo, un lexema, una línea y una columna.
+
 class Token(NamedTuple):
+
+    """
+     Definicion de la clase Token para representar los tokens generados por el analizador léxico.
+     Cada token tiene un tipo, un lexema, una línea y una columna.
+
+    """
+    
     tipo : str
     lexema: str
     linea: int
     columna: int
 
-# Definición de la clase AnalizadorLexico para realizar el análisis léxico del código fuente. 
-# Esta clase contiene un diccionario de palabras reservadas y métodos para tokenizar el código fuente.
+
 class AnalizadorLexico:
+
+    """
+     Definición de la clase AnalizadorLexico para realizar el análisis léxico del código fuente. 
+     Esta clase contiene un diccionario de palabras reservadas y métodos para tokenizar el código fuente.
+
+    """
 
     PALABRAS_RESERVADAS = {
         'program': 'tprogram', 'var': 'tvar', 'begin': 'tbegin', 'end': 'tend',
@@ -52,54 +65,59 @@ class AnalizadorLexico:
     # El constructor de la clase AnalizadorLexico recibe el código fuente como argumento 
     # y compila las reglas léxicas en una expresión regular maestra para facilitar el proceso de tokenización.
     def __init__(self, codigo_fuente: str):
-            self.codigo_fuente = codigo_fuente
+        self.codigo_fuente = codigo_fuente
 
-            #Construye una expresión regular maestra a partir de las reglas léxicas definidas. Cada regla se convierte en un grupo nombrado para facilitar la identificación del tipo de token durante el proceso de tokenización.
-            partes_regex = '|'.join(f'(?P<{nombre}>{regex})' for nombre, regex in self.REGLAS_LEXICAS) 
+        #Construye una expresión regular maestra a partir de las reglas léxicas definidas. Cada regla se convierte en un grupo nombrado para facilitar la identificación del tipo de token durante el proceso de tokenización.
+        partes_regex = '|'.join(f'(?P<{nombre}>{regex})' for nombre, regex in self.REGLAS_LEXICAS) 
 
-            self.regex_maestro = re.compile(partes_regex)
+        self.regex_maestro = re.compile(partes_regex)
 
 
-    # Realiza el proceso de tokenización del código fuente. Utiliza la expresión regular maestra para encontrar coincidencias en el código fuente 
-    # y generar una lista de tokens.
+   
     def obtener_tokens(self):
-            tokens = []
-            linea = 1
-            columna = 1
 
-            for coincidencia in self.regex_maestro.finditer(self.codigo_fuente):
-                tipo_token = coincidencia.lastgroup
-                lexema = coincidencia.group(tipo_token)
+        """
+         Realiza el proceso de tokenización del código fuente. Utiliza la expresión regular maestra para encontrar coincidencias en el código fuente 
+         y generar una lista de tokens.
 
-                if tipo_token == 'SALTO_LINEA':
-                    linea += 1
-                    columna = 1
-                elif tipo_token == 'ESPACIOS':
-                    columna += len(lexema)
-                elif tipo_token == 'ERROR':
-                    raise SyntaxError(f"Caracter no reconocido '{lexema}' en línea {linea}, columna {columna}")
-                else:
+        """
+        tokens = []
+        linea = 1
+        columna = 1
 
-                    # Si el token es un identificador (tid) y su lexema coincide con una palabra reservada 
-                    # se actualiza el tipo de token al correspondiente en el diccionario de palabras reservadas.
-                    if tipo_token == 'tid' and lexema.lower() in self.PALABRAS_RESERVADAS:
-                        tipo_token = self.PALABRAS_RESERVADAS[lexema.lower()]
-                    
-                    tokens.append(Token(tipo=tipo_token, lexema=lexema, linea=linea, columna=columna))
-                    columna += len(lexema)
-            
-            tokens.append(Token(tipo='pesos', lexema='$', linea=linea, columna=columna))
+        for coincidencia in self.regex_maestro.finditer(self.codigo_fuente):
+            tipo_token = coincidencia.lastgroup
+            lexema = coincidencia.group(tipo_token)
 
-            return tokens
+            if tipo_token == 'SALTO_LINEA':
+                linea += 1
+                columna = 1
+            elif tipo_token == 'ESPACIOS':
+                columna += len(lexema)
+            elif tipo_token == 'ERROR':
+                raise SyntaxError(f"Caracter no reconocido '{lexema}' en línea {linea}, columna {columna}")
+            else:
+
+                # Si el token es un identificador (tid) y su lexema coincide con una palabra reservada 
+                # se actualiza el tipo de token al correspondiente en el diccionario de palabras reservadas.
+                if tipo_token == 'tid' and lexema.lower() in self.PALABRAS_RESERVADAS:
+                    tipo_token = self.PALABRAS_RESERVADAS[lexema.lower()]
+                
+                tokens.append(Token(tipo=tipo_token, lexema=lexema, linea=linea, columna=columna))
+                columna += len(lexema)
+        
+        tokens.append(Token(tipo='pesos', lexema='$', linea=linea, columna=columna))
+
+        return tokens
 
 
 
-# Bloque de código para pruebas. 
-# Se define un código de prueba que contiene varias construcciones del lenguaje, 
-# se crea una instancia del analizador léxico con ese código y se obtiene la lista de tokens generados. 
+# Bloque de código para pruebas.
+# Se define un código de prueba que contiene varias construcciones del lenguaje, se crea una
+# instancia del analizador léxico con ese código y se obtiene la lista de tokens generados.
 # Finalmente, se imprime la lista de tokens en un formato tabular.
 if __name__ == '__main__':
-    codigo_prueba = """
+    CODIGO_PRUEBA = """
     program MultiplicarMatrices;
     var
       matrizA : matrix;
@@ -111,8 +129,8 @@ if __name__ == '__main__':
       end
     end
     """
-    
-    lexer = AnalizadorLexico(codigo_prueba)
+
+    lexer = AnalizadorLexico(CODIGO_PRUEBA)
     lista_tokens = lexer.obtener_tokens()
     
     print(f"{'TIPO':<15} | {'LEXEMA':<20} | {'LÍNEA':<5} | {'COLUMNA'}")
