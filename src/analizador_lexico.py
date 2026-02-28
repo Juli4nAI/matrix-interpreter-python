@@ -32,7 +32,7 @@ class AnalizadorLexico:
         'escribir': 'tEscribir', 'si': 'tSi', 'entonces': 'tEntonces', 'sino': 'tSino',
         'mientras': 'tMientras', 'hacer': 'tHacer', 'filas': 'ttamfila', 
         'columnas': 'ttamcol', 'true': 'ttrue', 'false': 'tfalse', 
-        'not': 'tnot', 'and': 'ty', 'or': 'too'
+        'not': 'tnot', 'and': 'ty', 'or': 'too', 'transp': 'ttransp'
     }
 
     REGLAS_LEXICAS = [
@@ -109,32 +109,3 @@ class AnalizadorLexico:
         tokens.append(Token(tipo='pesos', lexema='$', linea=linea, columna=columna))
 
         return tokens
-
-
-
-# Bloque de código para pruebas.
-# Se define un código de prueba que contiene varias construcciones del lenguaje, se crea una
-# instancia del analizador léxico con ese código y se obtiene la lista de tokens generados.
-# Finalmente, se imprime la lista de tokens en un formato tabular.
-if __name__ == '__main__':
-    CODIGO_PRUEBA = """
-    program MultiplicarMatrices;
-    var
-      matrizA : matrix;
-    begin
-      matrizA := 10.5;
-      Mientras matrizA <> 0 Hacer
-      begin
-        Escribir("Hola mundo");
-      end
-    end
-    """
-
-    lexer = AnalizadorLexico(CODIGO_PRUEBA)
-    lista_tokens = lexer.obtener_tokens()
-    
-    print(f"{'TIPO':<15} | {'LEXEMA':<20} | {'LÍNEA':<5} | {'COLUMNA'}")
-    print("-" * 55)
-    for token in lista_tokens:
-        print(f"{token.tipo:<15} | {token.lexema:<20} | {token.linea:<5} | {token.columna}")
-
